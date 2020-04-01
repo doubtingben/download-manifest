@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Download manifest</title>
+  <style type="text/css">
+    body {
+        color: #D0CFCF;
+        background-color: #565254 }
+    a:link { color: #FFFBFE; text-decoration: none }
+    a:visited { color: #FFFBFE; text-decoration: none }
+    .ipfs:link { color: #D0CFCF; text-decoration: none }
+    .ipfs:visited { color: #D0CFCF; text-decoration: none }    
+  </style>    
+  </head>
+  <body>
+<h1>Download manifest</h1>
+    <div class="header">Files available for download</div>
+    <div class="manifest">    
+        {{range $entry := .Manifest}}
+                <p>
+                <span><a href="{{.FilePath}}">{{$entry.FilePath}}</span>
+                <span style="font-size: 75%">{{$entry.SizeBytes}} bytes</span>
+                <span style="font-size: 75%;color: #7A7D7D">sha256sum:{{$entry.Sha256Sum}}</span></a><br />
+                <span><a class="ipfs" href="https://gateway.pinata.cloud/ipfs/{{$entry.CID}}">{{$entry.CID}}</a></span>
+                </p>
+        {{end}}
+    </div>
+    <div class="footer">Created at: {{.CreatedAt}}</div>
+  </body>
+</html>

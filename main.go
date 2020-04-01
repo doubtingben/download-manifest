@@ -5,11 +5,15 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	shell "github.com/ipfs/go-ipfs-api"
+	"html/template"
 	"io"
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
+	"time"
+
+	shell "github.com/ipfs/go-ipfs-api"
 )
 
 // ManifestEntry describes a file entry in the manifest
@@ -18,6 +22,12 @@ type ManifestEntry struct {
 	SizeBytes int64  `json:"size_bytes"`
 	Sha256Sum string `json:"sha256sum"`
 	CID       string `json:"CID"`
+}
+
+// TemplateData is all the data we'll send to the template
+type TemplateData struct {
+	Manifest  []*ManifestEntry `json:"manifest"`
+	CreatedAt time.Time        `json:"created_at"`
 }
 
 var manifest []*ManifestEntry
@@ -29,14 +39,48 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to start: %s", err)
 	}
+	// sort entries by filePath
+	sort.Slice(manifest, func(i, j int) bool { return manifest[i].FilePath > manifest[j].FilePath })
+	if err = writeJSON(manifest); err != nil {
+		log.Fatalf("Failed to write manifest file: %s", err)
+	}
+	if err = writeHTML(manifest); err != nil {
+		log.Fatalf("Failed to write manifest file: %s", err)
+	}
+}
+
+func writeHTML(manifest []*ManifestEntry) error {
+	tData := &TemplateData{
+		Manifest:  manifest,
+		CreatedAt: time.Now(),
+	}
+
+	t, err := template.ParseFiles("index.tmpl")
+	if err != nil {
+		return err
+	}
+	f, err := os.Create("index.html")
+	if err != nil {
+		return err
+	}
+	err = t.Execute(f, tData)
+	if err != nil {
+		return err
+	}
+	f.Close()
+	return nil
+}
+
+func writeJSON(manifest []*ManifestEntry) error {
 	data, _ := json.MarshalIndent(manifest, "", "    ")
 	oh, err := os.Create("manifest.json")
 	if err != nil {
-		log.Fatalf("Failed to create manifest file: %s", err)
+		return err
 	}
 	if _, err = oh.Write(data); err != nil {
-		log.Fatalf("Failed to write manifest file: %s", err)
+		return err
 	}
+	return nil
 }
 
 func processDir(dir string) error {
