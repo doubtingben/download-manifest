@@ -1,0 +1,34 @@
+---
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: download-manifest-build
+spec:
+  volumes:
+    - name: bucket-serivce-file
+      secret:
+        secretName: tekton-push-images
+  resources:
+    inputs:
+      - name: source
+        type: git       
+  steps:
+    - name: build
+      image: golang
+      script: |
+        #!/usr/bin/env bash
+        set -xe
+        pwd
+        cd /workspace/source
+        make
+        ./download-manifest --version
+    - name: upload
+      image: google/cloud-sdk
+      volumeMounts:
+        - name: bucket-serivce-file
+          mountPath: /var/bucket/servicefile
+      script: |
+        #!/usr/bin/env bash
+        pwd
+        gcloud auth activate-service-account --key-file=/var/bucket/servicefile/tekton-push-images-key.json
+        gsutil cp /workspace/source/download-manifest gs://tekton-builds/

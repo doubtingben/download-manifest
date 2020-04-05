@@ -1,0 +1,17 @@
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TaskRun
+metadata:
+  generateName: download-manifest-build-
+spec:
+  serviceAccountName: tekton-triggers-example-minimal-sa
+  taskRef:
+    name: download-manifest-build
+  inputs:
+    resources:
+      - name: source
+        resourceSpec:
+          type: git
+          params:
+            - name: url
+              value: https://github.com/doubtingben/download-manifest.git
