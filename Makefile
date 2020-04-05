@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-VERSION := `git describe --tags`
+VERSION := `git describe --always`
 GITCOMMIT := `git rev-parse HEAD`
 BRANCH := `git branch`
 BUILDDATE := `date +%Y-%m-%d`
