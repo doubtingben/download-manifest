@@ -2,7 +2,7 @@ SHELL := /bin/bash
 
 VERSION := `git describe --always`
 GITCOMMIT := `git rev-parse HEAD`
-BRANCH := `git branch --show-current`
+BRANCH := `git rev-parse --abbrev-ref HEAD`
 BUILDDATE := `date +%Y-%m-%d`
 BUILDUSER := `whoami`
 
