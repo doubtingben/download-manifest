@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"html/template"
 	"io"
@@ -34,6 +35,13 @@ var manifest []*ManifestEntry
 var startAt string
 
 func main() {
+	versionFlag := flag.Bool("version", false, "print version information")
+	flag.Parse()
+	if *versionFlag {
+		fmt.Printf("(version=%s, branch=%s, gitcommit=%s)\n", Version, GitBranch, GitCommit)
+		fmt.Printf("(go=%s, user=%s, date=%s)\n", GoVersion, BuildUser, BuildDate)
+		os.Exit(0)
+	}
 	startAt, _ = os.Getwd()
 	err := processDir(startAt)
 	if err != nil {
